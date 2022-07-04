@@ -1,27 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections; 
 using UnityEngine;
 
 public class DetectRaycast : MonoBehaviour
 {
-    [Header("Raycast Parameters")]
-    //[SerializeField] GiayTestRaycast giayTestRaycast;
-    [SerializeField] private int rayLength = 5;
+    [Header("Raycast Parameters")] 
+    [SerializeField] private int rayLength = 3;
     [SerializeField] private LayerMask layerMaskInteract;
     [SerializeField] private string exludeLayerName = null;
-    [SerializeField] CollideDoorFrame cdf;
-    //[SerializeField] AddForce af;
-    BasicDoorRaycast bdr;
-    bool isCrosshairActive;
-    //bool doOnce;
-    //bool doOnce2;
-    //float initD;
-    //bool once;
-    //bool avoidFail;
+    [SerializeField] CollideDoorFrame cdf; 
+    ObjectRaycast bdr;
+    bool contacting; 
 
     private void Awake()
     {
-        bdr = GetComponent<BasicDoorRaycast>();  
+        bdr = GetComponent<ObjectRaycast>();  
     }
     private void Update()
     {
@@ -59,8 +51,7 @@ public class DetectRaycast : MonoBehaviour
                             yield return new WaitForSeconds(0.4f);
                             bdr.raycasted_obj.avoidFail = true;
                         }
-                    }
-                    //}
+                    } 
                 }
                 if (!bdr.raycasted_obj.doOnce2)
                 {
@@ -69,14 +60,12 @@ public class DetectRaycast : MonoBehaviour
                         bdr.raycasted_obj.AddForceNear2();
                         bdr.raycasted_obj.doOnce2 = true;
                     }
-                }
-                //isCrosshairActive = true;
-                //doOnce = true;
+                } 
             }
         }
         else
         {
-            if (isCrosshairActive)
+            if (contacting)
             {
                 bdr.raycasted_obj.doOnce = false;
             }

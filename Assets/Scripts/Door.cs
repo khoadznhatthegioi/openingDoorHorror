@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class BasicDoorController : MonoBehaviour
+public class Door : MonoBehaviour
 {
     public enum DoorType : int
     {
@@ -14,9 +14,9 @@ public class BasicDoorController : MonoBehaviour
     }
     public DoorType doorType;
     Rigidbody rb;
-    [SerializeField] BasicDoorRaycast bdr;
+    [SerializeField] ObjectRaycast bdr;
     [SerializeField] Image crosshair;
-    [HideInInspector] public float y;
+    [HideInInspector] public float originalY;
     [HideInInspector] public bool openedOutside;
     [HideInInspector] public bool changed;
     [HideInInspector] public bool collided;
@@ -48,13 +48,10 @@ public class BasicDoorController : MonoBehaviour
         rb = GetComponent<Rigidbody>(); 
         JointLimits limits = new JointLimits();
         hinge = GetComponent<HingeJoint>();
-        //doorAnim = gameObject.GetComponent<Animator>();
-        y = transform.eulerAngles.y;
+        originalY = transform.eulerAngles.y;
         limits.min = 0;
         limits.max = maxAngleOpen;
-        GetComponent<HingeJoint>().limits = limits;//limits.min = y;
-        //limits.max = y + maxAngleOpen;
-        //GetComponent<HingeJoint>().limits = limits;
+        GetComponent<HingeJoint>().limits = limits;
     }
 
     private void FixedUpdate()
@@ -64,13 +61,8 @@ public class BasicDoorController : MonoBehaviour
             OpenForce();
         }
 
-        if  (!halt && bdr.isCrosshairActive)
-        {
-            //if (((int)bdr.raycasted_obj.doorType) == 1)
-            //{
-            //    angleEnd = bdr.raycasted_obj.angle;
-            //}
-            
+        if  (!halt && bdr.contacting)
+        {   
             bdr.raycasted_obj.l = false;
             bdr.raycasted_obj.halt = true;
         }
@@ -78,24 +70,18 @@ public class BasicDoorController : MonoBehaviour
 
         if (((int)doorType) == 1)
         {
-            if (transform.eulerAngles.y >= y + angleEnd && !l)
+            if (transform.eulerAngles.y >= originalY + angleEnd && !l)
             {
-                //rb.isKinematic = true;
-                //reached = true;
                 speed = rb.angularVelocity.y * 180 / (Mathf.PI);
-                //Debug.Log(rb.angularVelocity.y);
                 startAutoRotateToMax = true;
                 rb.isKinematic = true;
-                //Debug.Log("asdjklasjd");
                 l = true;
             }
 
         }
         else if ((int)doorType == 2)
-        {
-            //angleActive = 0;
-            ///if(rb.gameObject.transform.eulerAngles.y <= y)
-            if (alreadyOpened && transform.eulerAngles.y >= y + 10)
+        { 
+            if (alreadyOpened && transform.eulerAngles.y >= originalY + 10)
             {
                 openedPassMinAngle = true;
             }
@@ -121,7 +107,7 @@ public class BasicDoorController : MonoBehaviour
 
         if (passedDoor)
         {
-            if (transform.eulerAngles.y < y + angleEnd)
+            if (transform.eulerAngles.y < originalY + angleEnd)
             {
                 rb.isKinematic = true;
                 startAutoRotateToMax = true;
@@ -137,7 +123,7 @@ public class BasicDoorController : MonoBehaviour
 
         if (openedPassMinAngle)
         {
-            if (transform.eulerAngles.y < y + 5)
+            if (transform.eulerAngles.y < originalY + 5)
             {
                 startAutoClose = true;
                 speed = Mathf.Abs(rb.angularVelocity.y*180/(Mathf.PI));
@@ -148,12 +134,11 @@ public class BasicDoorController : MonoBehaviour
 
 
         if (startAutoClose)
-        {
-            //transform.eulerAngles = Vector3.RotateTowards(transform.eulerAngles, new Vector3(transform.eulerAngles.x, y, transform.eulerAngles.z), speed * Time.deltaTime, 1f);
+        { 
             float yVelocity = 0f;
             float smooth = 0.03f;
-            RotateTowards(y, ref yVelocity, smooth, speed);
-            if (Mathf.Approximately(rb.gameObject.transform.eulerAngles.y, y))
+            RotateTowards(originalY, ref yVelocity, smooth, speed);
+            if (transform.eulerAngles.y >= originalY - 0.001 && transform.eulerAngles.y <= originalY + 0.001) 
             {
                 startAutoClose = false;
                 tag = "DoorHinge";
@@ -198,8 +183,7 @@ public class BasicDoorController : MonoBehaviour
 
     public void AddForceNear1()
     { 
-        var xzpair = FindXZMultiplier(gameObject.transform.eulerAngles.y);
-        //addForce1 = bdr.raycasted_obj.forceLookUp;
+        var xzpair = FindXZMultiplier(gameObject.transform.eulerAngles.y); 
         rb.AddForce(new Vector3(xzpair[0], 0, xzpair[1]) * forceLookUp, ForceMode.Impulse);
         openedDoor1 = false;
         //isAddedOnce = true;
@@ -207,8 +191,7 @@ public class BasicDoorController : MonoBehaviour
 
     public void AddForceNear2()
     { 
-        var xzpair = FindXZMultiplier(gameObject.transform.eulerAngles.y);
-        //addForce1 = bdr.raycasted_obj.forceLookUp;
+        var xzpair = FindXZMultiplier(gameObject.transform.eulerAngles.y); 
         rb.AddForce(new Vector3(xzpair[0], 0, xzpair[1]) * forceInteract, ForceMode.Impulse);
         openedDoor2 = false;
     }

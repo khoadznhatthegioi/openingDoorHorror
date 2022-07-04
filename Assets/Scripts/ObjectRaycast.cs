@@ -1,34 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using System.Collections;
-using System.Collections.Generic;
-using UnityStandardAssets.Characters.FirstPerson;
-using UnityStandardAssets.CrossPlatformInput;
 
-public class BasicDoorRaycast : MonoBehaviour
-{
-    [Header("Raycast Parameters")]
-    //[SerializeField] GiayTestRaycast giayTestRaycast;
-    [SerializeField] private int rayLength = 5;
+public class ObjectRaycast : MonoBehaviour
+{ 
+    [SerializeField] private int rayLength = 3;
     [SerializeField] private LayerMask layerMaskInteract;
-    [SerializeField] private string exludeLayerName = null;
-    [SerializeField] public FirstPersonController player;
+    [SerializeField] private string exludeLayerName = null; 
+     
     
-    [SerializeField] Camera mainCamera;
+    [SerializeField] public Door raycasted_obj;
 
-    [SerializeField] public BasicDoorController raycasted_obj;
-
-    [Header("UI Parameters")]
     [SerializeField] private Image crosshair = null;
-    public bool isCrosshairActive;
-    public bool doOnce;
-   // public bool openedDoor, openedDoor1, openedDoor2;
-
-
-    private const string interactableTag = "InteractiveObject";
- 
-
+    public bool contacting;
+    public bool once;
     [SerializeField] CollideDoorFrame cdf;
  
 
@@ -48,14 +32,14 @@ public class BasicDoorRaycast : MonoBehaviour
 
             if (hit.collider.CompareTag("DoorHinge"))
             {
-                if (!doOnce)
+                if (!once)
                 {
-                    raycasted_obj = hit.collider.gameObject.GetComponent<BasicDoorController>();
+                    raycasted_obj = hit.collider.gameObject.GetComponent<Door>();
                     CrosshairChange(true);
                 }
 
-                isCrosshairActive = true;
-                doOnce = true;
+                contacting = true;
+                once = true;
 
 
 
@@ -72,17 +56,17 @@ public class BasicDoorRaycast : MonoBehaviour
 
         else
         {
-            if (isCrosshairActive)
+            if (contacting)
             {
                 CrosshairChange(false);
-                doOnce = false;
+                once = false;
             }
         }
     }
 
     void CrosshairChange(bool on)
     {
-        if (on && !doOnce)
+        if (on && !once)
         {
             crosshair.color = Color.red; 
         }
@@ -91,7 +75,7 @@ public class BasicDoorRaycast : MonoBehaviour
             crosshair.color = Color.white;
             
             raycasted_obj.halt = false;
-            isCrosshairActive = false;
+            contacting = false;
         }
     }
 }

@@ -1,18 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CollideDoorFrame : MonoBehaviour
 {
-    [SerializeField] BasicDoorRaycast bdr;
-    //[SerializeField] CollideDoorFrame parentCdf;
+    [SerializeField] ObjectRaycast bdr; 
 
     private void Update()
     {
         if (bdr.raycasted_obj)
         {
             var currentDoor = bdr.raycasted_obj;
-            if (currentDoor && currentDoor.collided && currentDoor.alreadyInside /*&& gameObject.name != "GameObject"*/)
+            if (currentDoor && currentDoor.collided && currentDoor.alreadyInside)
             {
                 currentDoor.haltIsNear = true;
             }
